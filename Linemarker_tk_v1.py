@@ -120,7 +120,7 @@ class Linemarker:
         self.open_button.pack(side=tk.TOP,pady=(30,1))
         self.openwin_button = tk.Button(
             self.fileframe,
-            text='Open linefree win file',
+            text='Open freq ranges file',
             command=self.select_winfile,
             height=3, width=20,
             font=("Helvetica", 10),
@@ -254,10 +254,11 @@ class Linemarker:
     @_require(['line_loaded','mask'])            
     def _save(self,filename):
         with open(filename,'w') as f:
+            print('prepare to write to %s' %filename)
             s = self.parse_mask(self.mask,self.x)
             f.write(s)
-            pdffilename = os.path.splitext(filename)[0]+'.pdf'
-            self._savefig(pdffilename)
+        pdffilename = os.path.splitext(filename)[0]+'.pdf'
+        self._savefig(pdffilename)
             
     @_require('fig')        
     def _savefig(self,pdffilename):
@@ -472,11 +473,14 @@ class Linemarker:
         
     @classmethod
     def parse_winstr(cls,winstr,x):
-        wins = [i.split('~') for i in winstr.strip().split(';')]
-        wins = [(float(i[0]),float(i[1])) for i in wins]
         win = np.zeros_like(x,dtype='bool')
+        wins = [i.split('~') for i in winstr.strip().split(';')]
+        wins = [(float(i[0]),float(i[1])) for i in wins] 
         for i in wins:
-            win = win | ((x>=i[0]) & (x<=i[1]))
+            leftdex = np.argmin(np.abs( i[0]-x )) 
+            rightdex = np.argmin(np.abs( i[1]-x ))
+            win[leftdex:rightdex+1] = True
+            #be carefull that 'win[(x>=i[0]) & (x<=i[1])]=True' performs not good
         return win
  
     @classmethod        
@@ -487,7 +491,7 @@ class Linemarker:
         mask1[1:-1] = mask
         left_edges  = (~mask1[0:-2]) & (mask1[1:-1])
         right_edges = (mask1[1:-1]) & (~mask1[2:])
-        left_edges = np.arange(len(mask))[left_edges]
+        left_edges = np.arange(len(mask))[left_edges] 
         right_edges = np.arange(len(mask))[right_edges]
         assert len(left_edges) == len(right_edges)
         return np.array([left_edges,right_edges]).T
