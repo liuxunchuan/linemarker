@@ -64,20 +64,18 @@ class Linemarker:
             self.update_shadow()
         except Exception:
             pass   
-        self.mask_maxhistory = 50
+        self.mask_maxhistory = 100
         self.reset_mask_history()
         if hasattr(self,'mask'):
             self.append_mask_history(self.mask)  
             
-        
         self.canvas.mpl_connect('scroll_event', self.zoom)
         self.canvas.mpl_connect('button_press_event', self.reset_limit_listen)  
         
         self.selector = RectangleSelector(self.ax, self.draw_callback, useblit=True, 
                                button=[1, 3], # disable middle button
                                minspanx=5, minspany=5, spancoords='pixels', 
-                               interactive=False)  
-               
+                               interactive=False)                 
        
         self.outframe = tk.Frame(master)
         self.outframe.pack(side=tk.LEFT)               
@@ -173,10 +171,6 @@ class Linemarker:
             if len(self.mask_history)<0:
                 pass 
                 return  
-            
-            if len(self.mask_history)<=1:
-                pass
-                return
             return func(self,direction)
         return wrapper  
         
@@ -208,9 +202,8 @@ class Linemarker:
         
         if type(filename) != str:
             filename = ''
-        
-        if filename != '':
-            self.defaultdir=os.path.dirname(filename)
+        #if filename != '':
+        #    self.defaultdir=os.path.dirname(filename)
         return filename
         #showinfo(title='selected file',message=filename)
         
@@ -378,8 +371,9 @@ class Linemarker:
         if len(self.mask_history) > (self.mask_current+1):
             for i in range( len(self.mask_history) - (self.mask_current+1) ):
                  self.mask_history.pop(-1)
-        if len(self.mask_history)>=self.mask_maxhistory:
-            self.mask_history.pop(0)     
+        if len(self.mask_history)>self.mask_maxhistory:
+            self.mask_history.pop(0)
+            self.mask_current = len(self.mask_history)-1     
             
     def reset_mask_history(self):
         if not hasattr(self,'mask_history'):
@@ -396,7 +390,7 @@ class Linemarker:
             self.reset_mask_history()
             self.remove_fitline()
             del self.mask          
-        else:
+        elif len(self.mask_history)>1:
             if direction == 'pre':
                 if self.mask_current <= 0:
                     pass
@@ -415,9 +409,7 @@ class Linemarker:
                 self.mask_current =  len(self.mask_history)-1
             self.mask = self.mask_history[self.mask_current]
         self.update_shadow()
-        self.update_fitline()  
-        
-              
+        self.update_fitline()          
         
     def select_alltext(self,event):
         #self.output_box.configure(state='normal')
