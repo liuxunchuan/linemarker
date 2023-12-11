@@ -480,7 +480,8 @@ class Linemarker:
             leftdex = np.argmin(np.abs( i[0]-x )) 
             rightdex = np.argmin(np.abs( i[1]-x ))
             win[leftdex:rightdex+1] = True
-            #be carefull that 'win[(x>=i[0]) & (x<=i[1])]=True' performs not good
+            #Be carefull that 'win[(x>=i[0]) & (x<=i[1])]=True' performs not good,
+            #since the frequency written to file has been truncated with limited precision.
         return win
  
     @classmethod        
