@@ -27,6 +27,17 @@ from tkinter import filedialog as fd
 from tkinter.messagebox import showinfo, askyesno
     
 class Linemarker:
+    """
+    The linemarker provide a GUI to manually select the line-free (or line-emission) channels
+    of a spectrum.
+    Input: 
+        Spectrum file: in the format of tsv only (e.g., specfile.tsv),
+                       the frequency is in unit of MHz,
+                       not necessary be continuum subtracted.
+    Output: 
+        Freq windows file: default to be written in path/specfile_winstr.txt,
+                            
+    """
     def __init__(self,master):
         self.master = master
         width = self.master.winfo_screenwidth()
