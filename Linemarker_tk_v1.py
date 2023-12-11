@@ -31,12 +31,20 @@ class Linemarker:
     The linemarker provide a GUI to manually select the line-free (or line-emission) channels
     of a spectrum.
     Input: 
-        Spectrum file: in the format of tsv only (e.g., specfile.tsv),
-                       the frequency is in unit of MHz,
-                       not necessary be continuum subtracted.
+        Spectrum file:
+            in the format of tsv only (e.g., path/specfile.tsv),
+            the frequency is in unit of MHz,
+            not necessary be continuum subtracted.
     Output: 
-        Freq windows file: default to be written in path/specfile_winstr.txt,
-                            
+        Freq windows file: 
+            default to be written in path/specfile_winstr.txt,
+            in the format like 216988.6683~216995.9926;217078.5120~217079.9769
+        Snapshot image:
+            default to be saved in path/specfile_winstr.pdf           
+    Control spectral panel:
+        Scroll down: zoom out
+        Scroll up: zoom in
+        mousewheel click: reset freqency range                    
     """
     def __init__(self,master):
         self.master = master
