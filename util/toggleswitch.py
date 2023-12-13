@@ -15,7 +15,7 @@ class ToggleSwitch(tk.Canvas):
     """
     def __init__(self, parent, width=60, height=30, padding = 5, orientation = 'horizontal', 
                  toggle_on_color = 'green', toggle_off_color = 'grey', jollystick_on_color = 'white', jollystick_off_color = 'white',
-                 animation_speed = 50, animation_step = 10,
+                 animation_speed = 10, animation_step = 10,
                  # myfunction,      # pass the customed function.
                  **kwargs):
         if orientation == 'horizontal':
@@ -109,14 +109,6 @@ class ToggleSwitch(tk.Canvas):
         else:
             self.is_on = True
             self.animate('on')    
-    
-    def toggle(self, event):
-        if self.is_on:
-            self.is_on = False
-            self.animate('off')
-        else:
-            self.is_on = True
-            self.animate('on')
 
 if __name__ == "__main__":
     root = tk.Tk()
