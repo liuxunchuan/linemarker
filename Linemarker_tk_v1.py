@@ -27,6 +27,20 @@ from tkinter import filedialog as fd
 from tkinter.messagebox import showinfo, askyesno
 
 import util
+
+supporting_language_switch = True
+try:
+    from gettext import translation
+    i18n_root_dir = os.path.join(os.path.dirname(__file__), "i18n")
+    supported_langdomains = [('zh','zh_CN'),('en','en')]
+    default_lang = 'en'
+    lang_translators = { lang: translation(domain=domain, localedir=i18n_root_dir, languages=[lang],fallback=True)
+                     for lang,domain in supported_langdomains
+                   } 
+    lang_translators[default_lang].install()
+    _ = lang_translators[default_lang].gettext
+except Exception:
+    supporting_language_switch = False
     
 class Linemarker:
     """
@@ -49,6 +63,7 @@ class Linemarker:
         mousewheel click: reset freqency range                    
     """
     def __init__(self,master):
+        self.supporting_language_switch = supporting_language_switch
         self.master = master
         width = self.master.winfo_screenwidth()
         height = self.master.winfo_screenheight()
@@ -59,7 +74,7 @@ class Linemarker:
         height_app_pad = (height-height_app)//4 
         win_geometry=('%dx%d+%d+%d'%(width_app, height_app,width_app_pad,height_app_pad))
         self.master.geometry(win_geometry)
-        self.fig = plt.figure('select line free channel',figsize=(width_app/dpi,height_app/dpi*2./3))
+        self.fig = plt.figure(_("select line free channel"),figsize=(width_app/dpi,height_app/dpi*2./3))
         self.ax = self.fig.add_axes([0.05,0.1,0.9,0.85])
         self.canvas = FigureCanvasTkAgg(self.fig, master=self.master)
         self.canvas_widget = self.canvas.get_tk_widget()
@@ -100,10 +115,10 @@ class Linemarker:
        
         self.outframe = tk.Frame(master)
         self.outframe.pack(side=tk.LEFT)               
-        labelText=tk.StringVar()
-        labelText.set("Linefree frequency range")
-        labelDir=tk.Label(self.outframe, textvariable=labelText, height=2)
-        labelDir.pack(side=tk.TOP,pady=(20,1))                 
+        self.labelText1=tk.StringVar()
+        self.labelText1.set(_("Linefree frequency range"))
+        self.labelDir1=tk.Label(self.outframe, textvariable=self.labelText1, height=2)
+        self.labelDir1.pack(side=tk.TOP,pady=(20,1))                 
         self.output_box = tk.Text(self.outframe,height=12,width=80)
         #self.output_box.configure(state='disabled')
         self.output_box.pack(pady=(0,10),padx=40)    
@@ -114,15 +129,15 @@ class Linemarker:
         self.fileframe.pack(side=tk.LEFT,padx=20)
         self.open_button = tk.Button(
             self.fileframe,
-            text='Open a spectrum file',
+            text=_("Open a spectrum file"),
             command=self.select_datafile,
             height=3, width=20,
-            font=("Helvetica", 10),
+            font=("fangsong ti", 10),
             )
         self.open_button.pack(side=tk.TOP,pady=(30,1))
         self.openwin_button = tk.Button(
             self.fileframe,
-            text='Open freq ranges file',
+            text=_('Open freq ranges file'),
             command=self.select_winfile,
             height=3, width=20,
             font=("Helvetica", 10),
@@ -131,41 +146,49 @@ class Linemarker:
         
         self.fitframe = tk.Frame(master)
         self.fitframe.pack(side=tk.LEFT,padx=20) 
-        labelText=tk.StringVar()
-        labelText.set("fit order")
-        labelDir=tk.Label(self.fitframe, textvariable=labelText, height=2)
-        labelDir.pack(side=tk.TOP,pady=(20,1))    
+        self.labelText2=tk.StringVar()
+        self.labelText2.set(_("fit order"))
+        self.labelDir2=tk.Label(self.fitframe, textvariable=self.labelText2, height=2)
+        self.labelDir2.pack(side=tk.TOP,pady=(20,1))    
         self.fitorder_entry = tk.Entry(self.fitframe,width=15)
         self.fitorder_entry.pack(side=tk.TOP) 
         self.fitorder_entry.bind('<Return>',self.fitorder_return) 
         
         self.winnavi_frame = tk.Frame(self.master)
         self.winnavi_frame.pack(side=tk.LEFT,padx=20)  
-        labelText=tk.StringVar()
-        labelText.set("freq windowns navigator") 
-        self.label_winnavi=tk.Label(self.winnavi_frame, textvariable=labelText, height=2)
+        self.labelText3=tk.StringVar()
+        self.labelText3.set(_("freq windowns navigator")) 
+        self.label_winnavi=tk.Label(self.winnavi_frame, textvariable=self.labelText3, height=2)
         self.label_winnavi.grid(row=0,column=0,columnspan = 2)  
-        self.winnavi_pre = tk.Button(self.winnavi_frame,text='<',width=6,command=lambda: self.winnavi_callback('pre'))
-        self.winnavi_nex = tk.Button(self.winnavi_frame,text='>',width=6,command=lambda: self.winnavi_callback('nex'))
-        self.winnavi_first = tk.Button(self.winnavi_frame,text='<<',width=6,command=lambda: self.winnavi_callback('first'))
-        self.winnavi_last  = tk.Button(self.winnavi_frame,text='>>',width=6,command=lambda: self.winnavi_callback('last'))
+        self.winnavi_pre = tk.Button(self.winnavi_frame,text='<',width=8,command=lambda: self.winnavi_callback('pre'))
+        self.winnavi_nex = tk.Button(self.winnavi_frame,text='>',width=8,command=lambda: self.winnavi_callback('nex'))
+        self.winnavi_first = tk.Button(self.winnavi_frame,text='<<',width=8,command=lambda: self.winnavi_callback('first'))
+        self.winnavi_last  = tk.Button(self.winnavi_frame,text='>>',width=8,command=lambda: self.winnavi_callback('last'))
         self.winnavi_pre.grid(row=1,column=0,padx=2)
         self.winnavi_nex.grid(row=1,column=1)   
         self.winnavi_first.grid(row=2,column=0)
         self.winnavi_last.grid(row=2,column=1)
-        self.winnavi_del = tk.Button(self.winnavi_frame,text='delete all',width=14+3,command=lambda: self.winnavi_callback('delete all'))
+        self.winnavi_del = tk.Button(self.winnavi_frame,text=_("delete all"),width=18+3,height=2,command=lambda: self.winnavi_callback('delete all'))
         self.winnavi_del.grid(row=3,column=0,columnspan = 2)
         
         self.save_frame = tk.Frame(self.master)
         self.save_frame.pack(side=tk.LEFT,padx=20) 
-        self.save_button = tk.Button(self.save_frame,text='save as',command=self.saveas,width=12,font=("Helvetica", 10))
+        self.save_button = tk.Button(self.save_frame,text=_("save as"),command=self.saveas,width=12,font=("Helvetica", 10))
         self.save_button.pack(side=tk.TOP,pady=(10,0))
-        self.savedefault_button = tk.Button(self.save_frame,text='save default',command=self.savedefault,width=12,font=("Helvetica", 10))
+        self.savedefault_button = tk.Button(self.save_frame,text=_("save default"),command=self.savedefault,width=12,font=("Helvetica", 10))
         self.savedefault_button.pack(side=tk.TOP,pady=(10,0))
       
         self.TS = util.toggleswitch.ToggleSwitch(self.master)
         self.TS.bind('<<onchanged>>',lambda event: print('TS onchaged!'))
         self.TS.pack(side=tk.LEFT)
+        
+        self.languages = ['en','zh']
+        self.labelText4 = tk.StringVar()
+        self.labelText4.set(self.languages[0])
+        self.lang_switch = tk.OptionMenu(self.master,self.labelText4,*(self.languages))
+        self.lang_switch.configure(width=5)
+        self.lang_switch.pack(side=tk.LEFT,padx=(6,1))
+        self.labelText4.trace("w", self.switch_language)
       
     def _require(varstrs,info=True):
         def decorator(func):
@@ -212,13 +235,13 @@ class Linemarker:
                     ):
         if mode=='open':
             filename = fd.askopenfilename(
-                title='Open a file',
+                title=_("Open a file"),
                 initialdir=self.defaultdir,
                 filetypes=filetypes
             )
         elif mode=='save':
             filename = fd.asksaveasfilename(
-                title='Open a file for save',
+                title=_("Open a file for save"),
                 initialdir=self.defaultdir,
                 filetypes=filetypes
             )
@@ -250,12 +273,12 @@ class Linemarker:
         filename = os.path.join(self.defaultdir,self.path_prefix+'_winstr.txt')
         overwrite = False
         if os.path.exists(filename):
-            overwrite = askyesno('warning','File "%s" exists, do you want to overwrite it?' %filename)
+            overwrite = askyesno(_("warning"),_("File '%s' exists, do you want to overwrite it?") %filename)
             if not overwrite:
                 return
         self._save(filename)
         if not overwrite:
-            showinfo('info','window ranges have been saved into "%s"' %filename)   
+            showinfo(_("info"),_("window ranges have been saved into '%s'") %filename)   
     
     @_require(['line_loaded','mask'])            
     def _save(self,filename):
@@ -307,7 +330,7 @@ class Linemarker:
                 x = x[::-1]
                 y = y[::-1]
             return x,y
-        showinfo(title='warning!',message='can not parse data file %s' %filename)   
+        showinfo(title='warning!',message=_("can not parse data file %s") %filename)   
         return None
      
     @_updatecanvas    
@@ -329,7 +352,7 @@ class Linemarker:
             self.update_outputbox()
             self.update_fitline()            
         except Exception as e:
-            showinfo(title='warning!',message='can not parse win file %s' %filename)
+            showinfo(title='warning!',message=_("can not parse win file %s") %filename)
             raise e        
                 
     def update_line(self,x,y,line=None,**kw):
@@ -521,9 +544,43 @@ class Linemarker:
         self.master.quit()
         self.master.destroy() 
         
+    @_updatecanvas    
+    def configure_labels(self,lang):
+        lang_translators[lang].install()
+        global _
+        _ = lang_translators[lang].gettext
+        self.labelText1.set(_("Linefree frequency range"))
+        self.labelText2.set(_("fit order"))
+        self.labelText3.set(_("freq windowns navigator")) 
+        self.master.title(_("Line Marker"))
+        self.open_button.config(text=_("Open a spectrum file"))
+        self.openwin_button.config(text=_('Open freq ranges file'))
+        self.winnavi_del.config(text=_("delete all"))
+        self.save_button.config(text=_("save as"))
+        self.savedefault_button.config(text=_("save default"))
+        
+        font = ('fangsong ti',10)
+        self.labelDir1.config(font=font)
+        self.labelDir2.config(font=font)
+        self.label_winnavi.config(font=font)
+        self.open_button.config(font=font)
+        self.openwin_button.config(font=font)
+        self.winnavi_del.config(font=font)
+        self.save_button.config(font=font)
+        self.savedefault_button.config(font=font)
+     
+    @_require('supporting_language_switch')    
+    def switch_language(self,*arg):
+        print('switch language arg',arg)
+        lang = self.labelText4.get()
+        print('switch to language %s' %lang)
+        self.configure_labels(lang)
+        
+        
 if __name__ == "__main__":
     tkroot = tk.Tk()
-    tkroot.title('Line Marker')
+    print(_("Line Marker"))
+    tkroot.title(_("Line Marker"))
     app = Linemarker(tkroot)
     tkroot.protocol('WM_DELETE_WINDOW',app.on_closing )
     tkroot.mainloop()
