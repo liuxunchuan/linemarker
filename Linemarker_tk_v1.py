@@ -171,17 +171,33 @@ class Linemarker:
         self.winnavi_last.grid(row=2,column=1)
         self.winnavi_del = tk.Button(self.winnavi_frame,text=_("delete all"),width=18+3,height=2,command=lambda: self.winnavi_callback('delete all'))
         self.winnavi_del.grid(row=3,column=0,columnspan = 2)
+
+        self.out_switch_frame = tk.Frame(self.master,bg=bg)
+        self.out_switch_frame.pack(side=tk.LEFT,padx=15) 
+        switch_initial_on=True
+        self.TS = util.toggleswitch.ToggleSwitch(self.out_switch_frame,orientation='vertical',width=80,height=40,initial_on=switch_initial_on)
+        self.TS.bind('<<onchanged>>',self.switch_changed)
+        self.TS.grid(row=0,column=0,rowspan=3)
+        self.labelText5=tk.StringVar()
+        self.labelText5.set(_("strict case"))
+        tk.Label(self.out_switch_frame,textvariable=self.labelText5, height=2, bg=bg,anchor="w", justify="left").grid(row=0,column=1)
+        self.labelText5=tk.StringVar()
+        self.labelText5.set(_("loose case"))
+        tk.Label(self.out_switch_frame,textvariable=self.labelText5, height=2, bg=bg,anchor="w", justify="left").grid(row=2,column=1)
+        
+        #self.out_switch_label_frame = tk.Frame(self.out_switch_frame,bg=bg)
+        #self.out_switch_label_frame.pack(side=tk.LEFT,padx=5) 
+        
         
         self.save_frame = tk.Frame(self.master,bg=bg)
         self.save_frame.pack(side=tk.LEFT,padx=20) 
         self.save_button = tk.Button(self.save_frame,text=_("save as"),command=self.saveas,width=12,font=("Helvetica", 10))
         self.save_button.pack(side=tk.TOP,pady=(10,0))
+        self.savedefalt_appendstr = '_strict_winstr' if switch_initial_on else '_loose_winstr'
         self.savedefault_button = tk.Button(self.save_frame,text=_("save default"),command=self.savedefault,width=12,font=("Helvetica", 10))
         self.savedefault_button.pack(side=tk.TOP,pady=(10,0))
       
-        self.TS = util.toggleswitch.ToggleSwitch(self.master,orientation='horizontal',width=80,height=40)
-        self.TS.bind('<<onchanged>>',lambda event: print('TS onchaged!'))
-        self.TS.pack(side=tk.LEFT)
+
         
         self.languages = ['en','zh']
         self.labelText4 = tk.StringVar()
@@ -222,8 +238,7 @@ class Linemarker:
                 return  
             return func(self,direction)
         return wrapper  
-        
-        
+                
     def select_file(self,
                     filetypes = (
                         ('tsv','*.tsv'),
@@ -268,10 +283,12 @@ class Linemarker:
             
         self._save(filename)            
 
+    def switch_changed(self,event):
+        self.savedefalt_appendstr = '_strict_winstr' if self.TS.is_on else '_loose_winstr' 
         
     @_require(['line_loaded','mask','defaultdir','path_prefix'],info=False)
     def savedefault(self):
-        filename = os.path.join(self.defaultdir,self.path_prefix+'_winstr.txt')
+        filename = os.path.join(self.defaultdir,self.path_prefix+self.savedefalt_appendstr)
         overwrite = False
         if os.path.exists(filename):
             overwrite = askyesno(_("warning"),_("File '%s' exists, do you want to overwrite it?") %filename)
@@ -574,7 +591,7 @@ class Linemarker:
     def switch_language(self,*arg):
         print('switch language arg',arg)
         lang = self.labelText4.get()
-        print('switch to language %s' %lang)
+        #print('switch to language %s' %lang)
         self.configure_labels(lang)
         
         

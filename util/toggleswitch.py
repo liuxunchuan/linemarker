@@ -15,7 +15,7 @@ class ToggleSwitch(tk.Canvas):
     """
     def __init__(self, parent, width=80, height=40, padding = 3, orientation = 'horizontal', 
                  toggle_on_color = 'green', toggle_off_color = 'grey', jollystick_on_color = 'white', jollystick_off_color = 'white',
-                 animation_speed = 10, animation_step = 10, background_color='#ECECEC',
+                 animation_speed = 10, animation_step = 10, background_color='#ECECEC', initial_on=False,
                  # myfunction,      # pass the customed function.
                  **kwargs):
         if orientation == 'horizontal':
@@ -28,7 +28,8 @@ class ToggleSwitch(tk.Canvas):
         self.parent = parent
         self.width = canvas_width
         self.height = canvas_height
-        self.is_on = False
+        assert initial_on in (True, False)
+        self.is_on = initial_on
         self.orientation = orientation
         # Draw the background
         self.track_on_color = toggle_on_color
@@ -74,7 +75,11 @@ class ToggleSwitch(tk.Canvas):
         self.create_rectangle(*_swap(self.rectangle_coord,self.orientation), outline='', fill=self.track_off_color, tags='track')
         self.create_oval(*_swap(self.oval_on_coord,self.orientation), outline='', fill=self.track_off_color, tags='track')
         self.create_oval(*_swap(self.oval_off_coord,self.orientation), outline='', fill=self.track_off_color, tags='track')
-        self.circle = self.create_oval(*_swap(self.circle_off_coord,self.orientation), outline='white', fill=self.circle_off_color, tags='circle')
+        if self.is_on:
+            self.circle = self.create_oval(*_swap(self.circle_on_coord,self.orientation), outline='white', fill=self.circle_on_color, tags='circle')
+            self.itemconfig('track', fill=self.track_on_color)
+        else:
+            self.circle = self.create_oval(*_swap(self.circle_off_coord,self.orientation), outline='white', fill=self.circle_off_color, tags='circle')
  
         self.bind("<Button-1>", self.toggle)
 
