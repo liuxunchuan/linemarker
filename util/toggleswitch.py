@@ -1,4 +1,11 @@
 import tkinter as tk
+import numpy as np
+
+def _swap(coord,orientation):
+    if orientation=='horizontal':
+        return coord
+    if orientation=='vertical':
+        return [coord[1],coord[0],coord[3],coord[2]]
 
 class ToggleSwitch(tk.Canvas):
     """
@@ -6,61 +13,103 @@ class ToggleSwitch(tk.Canvas):
     class members:
         is_on: True or False
     """
-    def __init__(self, parent, width=60, height=30, **kwargs):
-        super().__init__(parent, width=width, height=height, bg='white', highlightthickness=0, **kwargs)
+    def __init__(self, parent, width=60, height=30, padding = 5, orientation = 'horizontal', 
+                 toggle_on_color = 'green', toggle_off_color = 'grey', jollystick_on_color = 'white', jollystick_off_color = 'white',
+                 animation_speed = 50, animation_step = 10,
+                 # myfunction,      # pass the customed function.
+                 **kwargs):
+        if orientation == 'horizontal':
+            canvas_width, canvas_height = width, height
+        elif orientation == 'vertical':
+            canvas_width, canvas_height = height, width
+        else:
+            raise ValueError("Invalid orientation: must be 'horizontal' or 'vertical'")
+        print(canvas_width, canvas_height)
+        super().__init__(parent, width=canvas_width, height=canvas_height, bg='white', highlightthickness=0, **kwargs)
         self.parent = parent
-        self.width = width
-        self.height = height
+        self.width = canvas_width
+        self.height = canvas_height
         self.is_on = False
-        
+        self.orientation = orientation
+        print(self.width, self.height)
         # Draw the background
-        self.track_on_color = 'green'
-        self.track_off_color = 'grey'
-        padding = 5
-        radius = height - 2 * padding
-        self.create_rectangle(padding + radius / 2, padding, width - (padding + radius / 2), 
-                              height - padding, outline='', fill=self.track_off_color, tags='track')
-        self.create_oval(padding, padding, padding + radius, height - padding, outline='', 
-                        fill=self.track_off_color, tags='track')
-        self.create_oval(width - (padding + radius), 
-                         padding, width - padding, height - padding, outline='', 
-                         fill=self.track_off_color, tags='track')
+        self.track_on_color = toggle_on_color
+        self.track_off_color = toggle_off_color
+        padding = padding
         
-        # Draw the toggle circle
-        self.circle_on_color = 'white'
-        self.circle_off_color = 'white'
-        self.circle = self.create_oval(padding*2, padding*2, height-padding*2, 
-                                       height-padding*2, outline='white', 
-                                       fill=self.circle_off_color, tags='circle')
-        
+        self.circle_on_color = jollystick_on_color
+        self.circle_off_color = jollystick_off_color
+
+        self.animation_speed = animation_speed  # Milliseconds between animation steps, control the speed of the toggle.
+        self.animation_steps = animation_step  # Number of steps to move the circle
+
+        la = max(width, height)
+        lb = min(width, height)
+        self.oval_radius = lb - 2 * padding
+        self.circle_radius = lb - 4 * padding
+
+
+        self.rectangle_coord = [ padding + self.oval_radius / 2, 
+                                 padding, 
+                                 la - (padding + self.oval_radius / 2),
+                                 lb - padding ] 
+        self.oval_on_coord = [ padding,
+                               padding,
+                               padding+self.oval_radius,
+                               padding+self.oval_radius
+                             ]
+        self.oval_off_coord= [la-(padding+self.oval_radius),
+                              padding,
+                              la-padding,
+                              padding+self.oval_radius
+                             ]    
+        self.circle_on_coord =[2*padding,
+                               2*padding,
+                               2*padding+self.circle_radius,
+                               2*padding+self.circle_radius
+                             ]                     
+        self.circle_off_coord=[la-(2*padding+self.circle_radius),
+                              2*padding,
+                              la-2*padding,
+                              2*padding+self.circle_radius
+                             ]  
+                                 
+        self.create_rectangle(*_swap(self.rectangle_coord,self.orientation), outline='', fill=self.track_off_color, tags='track')
+        self.create_oval(*_swap(self.oval_on_coord,self.orientation), outline='', fill=self.track_off_color, tags='track')
+        self.create_oval(*_swap(self.oval_off_coord,self.orientation), outline='', fill=self.track_off_color, tags='track')
+        self.circle = self.create_oval(*_swap(self.circle_off_coord,self.orientation), outline='white', fill=self.circle_off_color, tags='circle')
+ 
         self.bind("<Button-1>", self.toggle)
 
-        # self.animation_speed = 5  # Milliseconds between animation steps
-        # self.animation_steps = 10  # Number of steps to move the circle
 
     def animate(self, direction):
-        self.animation_speed = 5  # Milliseconds between animation steps, control the speed of the toggle.
-        self.animation_steps = 10  # Number of steps to move the circle
-        move_distance = (self.width - self.height) / self.animation_steps
-        if direction == 'on':
-            self.move('circle', move_distance, 0)
-            current_position = self.coords('circle')
-            # print(current_position)
-            if current_position[2] < self.width - self.height / 2:
-                self.after(self.animation_speed, self.animate, direction)
-                return
-            else:
-                self.itemconfig('track', fill=self.track_on_color)
-        elif direction == 'off':
-            self.move('circle', -move_distance, 0)
-            current_position = self.coords('circle')
-            if current_position[0] > self.height / 2:
-                self.after(self.animation_speed, self.animate, direction)
-                return
-            else:
-                self.itemconfig('track', fill=self.track_off_color)        
+        if direction == 'off':
+            stop_coord = self.circle_off_coord
+        else:
+            stop_coord = self.circle_on_coord
+        start_coord = _swap(self.coords('circle'),self.orientation)
+        
+        animate_coords = list(np.linspace(stop_coord, start_coord, self.animation_steps+1 ) )
+        animate_coords.pop()
+    
+        move_distance = np.abs(self.width - self.height) / self.animation_steps
+        self.animate_run(animate_coords)
+        self.itemconfig('track', fill=self.track_off_color if (direction=='off') else self.track_on_color)
         self.event_generate('<<onchanged>>')
+        
+    def animate_run(self,animate_coords):
+        if len(animate_coords)>0:
+            self.coords('circle',*_swap(animate_coords.pop(),self.orientation))
+            self.after(self.animation_speed, self.animate_run, animate_coords)
 
+    def toggle(self, event):
+        if self.is_on:
+            self.is_on = False
+            self.animate('off')
+        else:
+            self.is_on = True
+            self.animate('on')    
+    
     def toggle(self, event):
         if self.is_on:
             self.is_on = False

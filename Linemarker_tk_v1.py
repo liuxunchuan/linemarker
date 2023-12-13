@@ -178,7 +178,7 @@ class Linemarker:
         self.savedefault_button = tk.Button(self.save_frame,text=_("save default"),command=self.savedefault,width=12,font=("Helvetica", 10))
         self.savedefault_button.pack(side=tk.TOP,pady=(10,0))
       
-        self.TS = util.toggleswitch.ToggleSwitch(self.master)
+        self.TS = util.toggleswitch.ToggleSwitch(self.master,orientation='vertical',width=80,height=40)
         self.TS.bind('<<onchanged>>',lambda event: print('TS onchaged!'))
         self.TS.pack(side=tk.LEFT)
         
