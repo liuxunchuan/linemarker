@@ -62,9 +62,10 @@ class Linemarker:
         Scroll up: zoom in
         mousewheel click: reset freqency range                    
     """
-    def __init__(self,master):
+    def __init__(self,master,bg='#ECECEC'):
         self.supporting_language_switch = supporting_language_switch
         self.master = master
+        self.master.config(bg=bg)
         width = self.master.winfo_screenwidth()
         height = self.master.winfo_screenheight()
         dpi = width/(self.master.winfo_screenmmwidth()/25.1)
@@ -113,11 +114,11 @@ class Linemarker:
                                minspanx=5, minspany=5, spancoords='pixels', 
                                interactive=False)                 
        
-        self.outframe = tk.Frame(master)
+        self.outframe = tk.Frame(master,bg=bg)
         self.outframe.pack(side=tk.LEFT)               
         self.labelText1=tk.StringVar()
         self.labelText1.set(_("Linefree frequency range"))
-        self.labelDir1=tk.Label(self.outframe, textvariable=self.labelText1, height=2)
+        self.labelDir1=tk.Label(self.outframe, textvariable=self.labelText1, height=2,bg=bg)
         self.labelDir1.pack(side=tk.TOP,pady=(20,1))                 
         self.output_box = tk.Text(self.outframe,height=12,width=80)
         #self.output_box.configure(state='disabled')
@@ -125,7 +126,7 @@ class Linemarker:
         self.update_outputbox()  
         self.output_box.bind('<Control-KeyRelease-a>',self.select_alltext)
         
-        self.fileframe = tk.Frame(master)
+        self.fileframe = tk.Frame(master,bg=bg)
         self.fileframe.pack(side=tk.LEFT,padx=20)
         self.open_button = tk.Button(
             self.fileframe,
@@ -144,21 +145,21 @@ class Linemarker:
             )
         self.openwin_button.pack(side=tk.TOP,pady=(10,1))   
         
-        self.fitframe = tk.Frame(master)
+        self.fitframe = tk.Frame(master,bg=bg)
         self.fitframe.pack(side=tk.LEFT,padx=20) 
         self.labelText2=tk.StringVar()
         self.labelText2.set(_("fit order"))
-        self.labelDir2=tk.Label(self.fitframe, textvariable=self.labelText2, height=2)
+        self.labelDir2=tk.Label(self.fitframe, textvariable=self.labelText2, height=2, bg=bg)
         self.labelDir2.pack(side=tk.TOP,pady=(20,1))    
         self.fitorder_entry = tk.Entry(self.fitframe,width=15)
         self.fitorder_entry.pack(side=tk.TOP) 
         self.fitorder_entry.bind('<Return>',self.fitorder_return) 
         
-        self.winnavi_frame = tk.Frame(self.master)
+        self.winnavi_frame = tk.Frame(self.master,bg=bg)
         self.winnavi_frame.pack(side=tk.LEFT,padx=20)  
         self.labelText3=tk.StringVar()
         self.labelText3.set(_("freq windowns navigator")) 
-        self.label_winnavi=tk.Label(self.winnavi_frame, textvariable=self.labelText3, height=2)
+        self.label_winnavi=tk.Label(self.winnavi_frame, textvariable=self.labelText3, height=2, bg=bg)
         self.label_winnavi.grid(row=0,column=0,columnspan = 2)  
         self.winnavi_pre = tk.Button(self.winnavi_frame,text='<',width=8,command=lambda: self.winnavi_callback('pre'))
         self.winnavi_nex = tk.Button(self.winnavi_frame,text='>',width=8,command=lambda: self.winnavi_callback('nex'))
@@ -171,7 +172,7 @@ class Linemarker:
         self.winnavi_del = tk.Button(self.winnavi_frame,text=_("delete all"),width=18+3,height=2,command=lambda: self.winnavi_callback('delete all'))
         self.winnavi_del.grid(row=3,column=0,columnspan = 2)
         
-        self.save_frame = tk.Frame(self.master)
+        self.save_frame = tk.Frame(self.master,bg=bg)
         self.save_frame.pack(side=tk.LEFT,padx=20) 
         self.save_button = tk.Button(self.save_frame,text=_("save as"),command=self.saveas,width=12,font=("Helvetica", 10))
         self.save_button.pack(side=tk.TOP,pady=(10,0))
@@ -581,6 +582,6 @@ if __name__ == "__main__":
     tkroot = tk.Tk()
     print(_("Line Marker"))
     tkroot.title(_("Line Marker"))
-    app = Linemarker(tkroot)
+    app = Linemarker(tkroot,bg='#ECECEC')
     tkroot.protocol('WM_DELETE_WINDOW',app.on_closing )
     tkroot.mainloop()

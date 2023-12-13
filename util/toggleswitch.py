@@ -15,7 +15,7 @@ class ToggleSwitch(tk.Canvas):
     """
     def __init__(self, parent, width=80, height=40, padding = 3, orientation = 'horizontal', 
                  toggle_on_color = 'green', toggle_off_color = 'grey', jollystick_on_color = 'white', jollystick_off_color = 'white',
-                 animation_speed = 10, animation_step = 10,
+                 animation_speed = 10, animation_step = 10, background_color='#ECECEC',
                  # myfunction,      # pass the customed function.
                  **kwargs):
         if orientation == 'horizontal':
@@ -24,14 +24,12 @@ class ToggleSwitch(tk.Canvas):
             canvas_width, canvas_height = height, width
         else:
             raise ValueError("Invalid orientation: must be 'horizontal' or 'vertical'")
-        print(canvas_width, canvas_height)
-        super().__init__(parent, width=canvas_width, height=canvas_height, bg='white', highlightthickness=0, **kwargs)
+        super().__init__(parent, width=canvas_width, height=canvas_height, bg=background_color, highlightthickness=0, **kwargs)
         self.parent = parent
         self.width = canvas_width
         self.height = canvas_height
         self.is_on = False
         self.orientation = orientation
-        print(self.width, self.height)
         # Draw the background
         self.track_on_color = toggle_on_color
         self.track_off_color = toggle_off_color
@@ -47,7 +45,6 @@ class ToggleSwitch(tk.Canvas):
         lb = min(width, height)
         self.oval_radius = lb - 2 * padding
         self.circle_radius = lb - 4 * padding
-
 
         self.rectangle_coord = [ padding + self.oval_radius / 2, 
                                  padding, 
@@ -80,7 +77,6 @@ class ToggleSwitch(tk.Canvas):
         self.circle = self.create_oval(*_swap(self.circle_off_coord,self.orientation), outline='white', fill=self.circle_off_color, tags='circle')
  
         self.bind("<Button-1>", self.toggle)
-
 
     def animate(self, direction):
         if direction == 'off':
