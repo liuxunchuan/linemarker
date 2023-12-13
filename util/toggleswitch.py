@@ -13,7 +13,7 @@ class ToggleSwitch(tk.Canvas):
     class members:
         is_on: True or False
     """
-    def __init__(self, parent, width=60, height=30, padding = 5, orientation = 'horizontal', 
+    def __init__(self, parent, width=80, height=40, padding = 3, orientation = 'horizontal', 
                  toggle_on_color = 'green', toggle_off_color = 'grey', jollystick_on_color = 'white', jollystick_off_color = 'white',
                  animation_speed = 10, animation_step = 10,
                  # myfunction,      # pass the customed function.
@@ -115,4 +115,6 @@ if __name__ == "__main__":
     root.title('Toggle Switch Example')
     toggle_switch = ToggleSwitch(root)
     toggle_switch.pack(pady=50)
+    toggle_switch = ToggleSwitch(root, orientation='vertical')
+    toggle_switch.pack(padx=100, pady=50)    
     root.mainloop()
