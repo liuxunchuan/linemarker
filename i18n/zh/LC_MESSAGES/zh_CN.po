@@ -89,3 +89,9 @@ msgstr "打开文件"
 
 msgid "Open a file for save"
 msgstr "打开文件以保存"
+
+msgid "strict case"
+msgstr "严格模式"
+
+msgid "loose case"
+msgstr "宽松模式"

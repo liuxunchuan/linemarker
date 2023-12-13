@@ -180,10 +180,12 @@ class Linemarker:
         self.TS.grid(row=0,column=0,rowspan=3)
         self.labelText5=tk.StringVar()
         self.labelText5.set(_("strict case"))
-        tk.Label(self.out_switch_frame,textvariable=self.labelText5, height=2, bg=bg,anchor="w", justify="left").grid(row=0,column=1)
-        self.labelText5=tk.StringVar()
-        self.labelText5.set(_("loose case"))
-        tk.Label(self.out_switch_frame,textvariable=self.labelText5, height=2, bg=bg,anchor="w", justify="left").grid(row=2,column=1)
+        self.label5=tk.Label(self.out_switch_frame,textvariable=self.labelText5, height=2, bg=bg,anchor="w", justify="left")
+        self.label5.grid(row=0,column=1)
+        self.labelText6=tk.StringVar()
+        self.labelText6.set(_("loose case"))
+        self.label6 = tk.Label(self.out_switch_frame,textvariable=self.labelText6, height=2, bg=bg,anchor="w", justify="left")
+        self.label6.grid(row=2,column=1)
         
         #self.out_switch_label_frame = tk.Frame(self.out_switch_frame,bg=bg)
         #self.out_switch_label_frame.pack(side=tk.LEFT,padx=5) 
@@ -193,7 +195,7 @@ class Linemarker:
         self.save_frame.pack(side=tk.LEFT,padx=20) 
         self.save_button = tk.Button(self.save_frame,text=_("save as"),command=self.saveas,width=12,font=("Helvetica", 10))
         self.save_button.pack(side=tk.TOP,pady=(10,0))
-        self.savedefalt_appendstr = '_strict_winstr' if switch_initial_on else '_loose_winstr'
+        self.savedefalt_appendstr = '_strict_winstr.txt' if switch_initial_on else '_loose_winstr.txt'
         self.savedefault_button = tk.Button(self.save_frame,text=_("save default"),command=self.savedefault,width=12,font=("Helvetica", 10))
         self.savedefault_button.pack(side=tk.TOP,pady=(10,0))
       
@@ -284,7 +286,7 @@ class Linemarker:
         self._save(filename)            
 
     def switch_changed(self,event):
-        self.savedefalt_appendstr = '_strict_winstr' if self.TS.is_on else '_loose_winstr' 
+        self.savedefalt_appendstr = '_strict_winstr.txt' if self.TS.is_on else '_loose_winstr.txt' 
         
     @_require(['line_loaded','mask','defaultdir','path_prefix'],info=False)
     def savedefault(self):
@@ -569,7 +571,9 @@ class Linemarker:
         _ = lang_translators[lang].gettext
         self.labelText1.set(_("Linefree frequency range"))
         self.labelText2.set(_("fit order"))
-        self.labelText3.set(_("freq windowns navigator")) 
+        self.labelText3.set(_("freq windowns navigator"))
+        self.labelText5.set(_("strict case"))
+        self.labelText6.set(_("loose case")) 
         self.master.title(_("Line Marker"))
         self.open_button.config(text=_("Open a spectrum file"))
         self.openwin_button.config(text=_('Open freq ranges file'))
@@ -581,6 +585,8 @@ class Linemarker:
         self.labelDir1.config(font=font)
         self.labelDir2.config(font=font)
         self.label_winnavi.config(font=font)
+        self.label5.config(font=font)
+        self.label6.config(font=font)
         self.open_button.config(font=font)
         self.openwin_button.config(font=font)
         self.winnavi_del.config(font=font)
