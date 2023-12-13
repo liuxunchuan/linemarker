@@ -25,6 +25,8 @@ from tkinter import ttk
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from tkinter import filedialog as fd 
 from tkinter.messagebox import showinfo, askyesno
+
+import util
     
 class Linemarker:
     """
@@ -160,6 +162,10 @@ class Linemarker:
         self.save_button.pack(side=tk.TOP,pady=(10,0))
         self.savedefault_button = tk.Button(self.save_frame,text='save default',command=self.savedefault,width=12,font=("Helvetica", 10))
         self.savedefault_button.pack(side=tk.TOP,pady=(10,0))
+      
+        self.TS = util.toggleswitch.ToggleSwitch(self.master)
+        self.TS.bind('<<onchanged>>',lambda event: print('TS onchaged!'))
+        self.TS.pack(side=tk.LEFT)
       
     def _require(varstrs,info=True):
         def decorator(func):
