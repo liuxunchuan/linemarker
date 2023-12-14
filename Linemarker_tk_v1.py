@@ -456,9 +456,10 @@ class Linemarker:
     @_require('mask',info=False)   
     def winnavi_callback(self,direction):  
         if direction == 'delete all':
-            self.reset_mask_history()
-            self.remove_fitline()
-            del self.mask          
+            if askyesno(_("warning"),_("do you want to delete all windows irrevocablely?")):
+                self.reset_mask_history()
+                self.remove_fitline()
+                del self.mask          
         elif len(self.mask_history)>1:
             if direction == 'pre':
                 if self.mask_current <= 0:

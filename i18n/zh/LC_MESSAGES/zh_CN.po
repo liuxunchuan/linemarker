@@ -95,3 +95,6 @@ msgstr "严格模式"
 
 msgid "loose case"
 msgstr "宽松模式"
+
+msgid "do you want to delete all windows irrevocablely?"
+msgstr "不可撤销，确定清除所有窗口吗？"
