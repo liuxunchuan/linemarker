@@ -25,8 +25,10 @@ from tkinter import ttk
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from tkinter import filedialog as fd 
 from tkinter.messagebox import showinfo, askyesno
+ 
 
-import util
+import util   
+from util.myscrollbar import MyScrollbar     
 
 supporting_language_switch = True
 try:
@@ -80,6 +82,10 @@ class Linemarker:
         self.canvas = FigureCanvasTkAgg(self.fig, master=self.master)
         self.canvas_widget = self.canvas.get_tk_widget()
         self.canvas_widget.pack(side=tk.TOP, fill=tk.BOTH, expand=1)
+        
+        self.scrollbar = MyScrollbar(self.master,orient=tk.HORIZONTAL,command=self.canvascommand)
+        self.scrollbar.set(0,0.05)
+        self.scrollbar.pack(side=tk.TOP,fill=tk.X,padx=80,pady=(10,2))
         
         self.line_loaded = False
         spefile = ''#'spw0spe_test1.tsv'
@@ -241,6 +247,45 @@ class Linemarker:
             return func(self,direction)
         return wrapper  
                 
+    def set_scrolllimit(self,x1,x2):
+        self.scrolllimit = (x1,x2)
+        
+    @_updatecanvas    
+    @_require(['scrolllimit','line_loaded'])    
+    def canvascommand(self,*e):
+        if e[0] == 'moveto':
+            x1,x2 = e[1],e[2]
+            scrolllimit=self.scrolllimit
+            x1,x2 = x1*(scrolllimit[1]-scrolllimit[0]), x2*(scrolllimit[1]-scrolllimit[0])
+            x1,x2 = x1+scrolllimit[0], x2+scrolllimit[0]
+            self.ax.set_xlim(x1,x2)    
+       
+    @_require('line_loaded')        
+    def reset_scrollbar(self):
+        l = self.x.max()-self.x.min()
+        self.set_scrolllimit(self.x.min()-l/2.,  self.x.max()+l/2.)
+        scrolllimit=self.scrolllimit
+        xlim = self.ax.get_xlim()
+        x1 = (xlim[0]-scrolllimit[0])/(scrolllimit[1]-scrolllimit[0])
+        x2 = (xlim[1]-scrolllimit[0])/(scrolllimit[1]-scrolllimit[0])
+        dl = x2-x1
+        if dl>=1:
+            if x1>1:
+                x1=0; x2=1
+            elif x2<0:
+                x1=0; x2=1
+            else:
+                x1 = max(0,x1)
+                x2 = min(1,x2)
+        else:
+            if x1<0:
+                x1=0
+                x2=dl
+            elif x2>1:
+                x2=1.
+                x1=x2-dl
+        self.scrollbar.set(x1,x2)
+                
     def select_file(self,
                     filetypes = (
                         ('tsv','*.tsv'),
@@ -390,6 +435,7 @@ class Linemarker:
         self.ax.set_xlim(self.x.min(),self.x.max())
         dy = (self.y.max()-self.y.min())*0.02
         self.ax.set_ylim(self.y.min()-dy,self.y.max()+dy)
+        self.reset_scrollbar()
  
     @_updatecanvas
     def reset_limit_listen(self,event):
@@ -407,6 +453,7 @@ class Linemarker:
                 event.xdata + (current_xlim[1] - event.xdata) * zoom_factor
             )
             self.ax.set_xlim(new_xlim)
+            self.reset_scrollbar()
 
     def update_shadow(self,alpha=0.4,color='gray'):
         if hasattr(self,'mask_shadow') and (self.mask_shadow in self.ax.collections):
